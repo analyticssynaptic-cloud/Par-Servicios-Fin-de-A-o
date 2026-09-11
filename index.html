@@ -66,6 +66,11 @@ canvas{display:block;width:100%;max-width:900px;height:auto;margin:16px auto;bor
 .modalBox h2{color:#ffd166;margin-top:0;display:flex;justify-content:space-between;align-items:center;font-weight:600}
 .rankRow{display:flex;justify-content:space-between;padding:10px 8px;border-bottom:1px solid #22405f;font-size:14px}
 .rankRow b{color:#ffd166}
+.dpad{display:grid;grid-template-columns:60px 60px 60px;grid-template-rows:60px 60px 60px;grid-template-areas:". up ." "left mid right" ". down .";gap:8px;justify-content:center;margin:6px auto 4px;max-width:210px;user-select:none}
+.dpadBtn{font-size:22px;padding:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#345c88,#243f60);color:#fff;box-shadow:0 6px 14px #0006;touch-action:none}
+.dpadBtn:active{filter:brightness(1.25);transform:scale(.94)}
+.dpadUp{grid-area:up}.dpadDown{grid-area:down}.dpadLeft{grid-area:left}.dpadRight{grid-area:right}
+.dpadMid{grid-area:mid;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.7}
 #confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:60;width:100vw;height:100vh;max-width:none;margin:0;border:none;border-radius:0;background:transparent}
 .footNote{text-align:center;opacity:.55;font-size:12px;margin:26px 0 8px}
 .toastHost{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:70;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
@@ -398,8 +403,18 @@ function basket(){
 
 /* ======================= 3. LABERINTO DE SANTA (2 niveles) ======================= */
 function maze(){
- instructions.textContent="Mueve a Santa con ← ↑ → ↓ o W A S D. Llega al 🎁.";
+ instructions.textContent="Mueve a Santa con ← ↑ → ↓, WASD, deslizando el dedo sobre el mapa o con los botones de abajo. Llega al 🎁.";
  makeCanvas(800,500);
+ const dpad=document.createElement("div");
+ dpad.className="dpad";
+ dpad.innerHTML=`
+   <button class="dpadBtn dpadUp" aria-label="Arriba">▲</button>
+   <button class="dpadBtn dpadLeft" aria-label="Izquierda">◀</button>
+   <span class="dpadMid">🎅</span>
+   <button class="dpadBtn dpadRight" aria-label="Derecha">▶</button>
+   <button class="dpadBtn dpadDown" aria-label="Abajo">▼</button>
+ `;
+ content.appendChild(dpad);
  const maps=[
  ["################",
   "#S....#........#",
@@ -460,6 +475,19 @@ function maze(){
    if(m){e.preventDefault();move(m[0],m[1])}
  };
  on(document,"keydown",key);
+ on(dpad.querySelector(".dpadUp"),"pointerdown",e=>{e.preventDefault();move(0,-1);});
+ on(dpad.querySelector(".dpadDown"),"pointerdown",e=>{e.preventDefault();move(0,1);});
+ on(dpad.querySelector(".dpadLeft"),"pointerdown",e=>{e.preventDefault();move(-1,0);});
+ on(dpad.querySelector(".dpadRight"),"pointerdown",e=>{e.preventDefault();move(1,0);});
+ let swipeStart=null;
+ on(canvas,"pointerdown",e=>{ swipeStart=pos(e); });
+ on(canvas,"pointerup",e=>{
+   if(!swipeStart)return;
+   const end=pos(e), dx=end.x-swipeStart.x, dy=end.y-swipeStart.y;
+   swipeStart=null;
+   if(Math.hypot(dx,dy)<22)return;
+   if(Math.abs(dx)>Math.abs(dy)){ move(dx>0?1:-1,0); } else { move(0,dy>0?1:-1); }
+ });
 }
 
 /* ======================= 4. BOLOS DE NIEVE (bolera real: arrastra y suelta) ======================= */
