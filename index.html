@@ -80,13 +80,13 @@ canvas{display:block;width:100%;max-width:900px;height:auto;margin:16px auto;bor
 </div>
 
 <div class="stations" id="stations">
-<div class="card" data-game="1" data-key="tiro"><div class="badge">0</div><div class="icon">🎯</div><b>Tiro al Blanco</b><p>12 disparos. Apunta al centro y suma puntos.</p><span class="tag">PRECISIÓN</span></div>
+<div class="card" data-game="1" data-key="tiro"><div class="badge">0</div><div class="icon">🎯</div><b>Tiro al Blanco</b><p>El blanco se mueve. 12 disparos para sumar puntos.</p><span class="tag">PRECISIÓN</span></div>
 <div class="card" data-game="2" data-key="basket"><div class="badge">0</div><div class="icon">🏀</div><b>Encesta la Navidad</b><p>Calcula la potencia y encesta la pelota.</p><span class="tag">HABILIDAD</span></div>
 <div class="card" data-game="3" data-key="maze"><div class="badge">0</div><div class="icon">🧩</div><b>Laberinto de Santa</b><p>Usa las flechas o WASD para llegar al regalo.</p><span class="tag">DESTREZA</span></div>
-<div class="card" data-game="4" data-key="bowling"><div class="badge">0</div><div class="icon">🎳</div><b>Bolos de Nieve</b><p>3 lanzamientos para derribar todos los pinos.</p><span class="tag">POTENCIA</span></div>
-<div class="card" data-game="5" data-key="gifts"><div class="badge">0</div><div class="icon">🎁</div><b>Regalo Relámpago</b><p>Encuentra el regalo correcto antes de que acabe el tiempo.</p><span class="tag">ATENCIÓN</span></div>
+<div class="card" data-game="4" data-key="bowling"><div class="badge">0</div><div class="icon">🎳</div><b>Bolos de Nieve</b><p>Arrastra para apuntar y suelta para lanzar. 3 lanzamientos.</p><span class="tag">POTENCIA</span></div>
+<div class="card" data-game="5" data-key="gifts"><div class="badge">0</div><div class="icon">🎁</div><b>Regalo Relámpago</b><p>Destapa los regalos y encuentra las parejas iguales.</p><span class="tag">MEMORIA</span></div>
 <div class="card" data-game="6" data-key="runner"><div class="badge">0</div><div class="icon">🦌</div><b>Reno Saltarín</b><p>Salta y evita los regalos que aparecen.</p><span class="tag">REFLEJOS</span></div>
-<div class="card" data-game="7" data-key="lights"><div class="badge">0</div><div class="icon">💡</div><b>Luces de Navidad</b><p>Memoriza y repite la secuencia de luces.</p><span class="tag">MEMORIA</span></div>
+<div class="card" data-game="7" data-key="lights"><div class="badge">0</div><div class="icon">💡</div><b>Luces de Navidad</b><p>Enciende las luces del árbol antes de que se apaguen.</p><span class="tag">REFLEJOS</span></div>
 </div>
 
 <section id="game">
@@ -109,10 +109,10 @@ const GAMES = [
   {n:1,key:"tiro",title:"🎯 Tiro al Blanco",max:1200},
   {n:2,key:"basket",title:"🏀 Encesta la Navidad",max:800},
   {n:3,key:"maze",title:"🧩 Laberinto de Santa",max:900},
-  {n:4,key:"bowling",title:"🎳 Bolos de Nieve",max:1550},
-  {n:5,key:"gifts",title:"🎁 Regalo Relámpago",max:500},
+  {n:4,key:"bowling",title:"🎳 Bolos de Nieve",max:600},
+  {n:5,key:"gifts",title:"🎁 Regalo Relámpago",max:810},
   {n:6,key:"runner",title:"🦌 Reno Saltarín",max:400},
-  {n:7,key:"lights",title:"💡 Luces de Navidad",max:900}
+  {n:7,key:"lights",title:"💡 Luces de Navidad",max:1800}
 ];
 
 /* ======================= ESTADO GLOBAL ======================= */
@@ -224,22 +224,39 @@ function start(n){
 $("back").addEventListener("click",()=>{clearGame();gameBox.style.display="none";stations.style.display="grid";refreshHeader()});
 document.querySelectorAll(".card").forEach(c=>c.addEventListener("click",()=>start(Number(c.dataset.game))));
 
-/* ======================= 1. TIRO AL BLANCO ======================= */
+/* ======================= 1. TIRO AL BLANCO (blanco móvil) ======================= */
 function shoot(){
- instructions.textContent="Haz clic en el blanco. Tienes 12 disparos.";
- makeCanvas();let shots=0,streak=0;
- function draw(){bg();ctx.lineWidth=6;ctx.strokeStyle="#fff";[180,125,75].forEach(r=>{ctx.beginPath();ctx.arc(450,250,r,0,Math.PI*2);ctx.stroke()});ctx.fillStyle="#ef476f";ctx.beginPath();ctx.arc(450,250,45,0,7);ctx.fill();ctx.fillStyle="#ffd166";ctx.beginPath();ctx.arc(450,250,22,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.font="22px Arial";ctx.fillText("Disparos restantes: "+(12-shots),25,35)}draw();
+ instructions.textContent="El blanco se mueve solo. Haz clic en el centro. Tienes 12 disparos.";
+ makeCanvas();const myGen=gameGen;let shots=0,streak=0,tick=0;
+ let tx=450,ty=250;
+ function draw(){
+   bg();
+   ctx.lineWidth=6;ctx.strokeStyle="#fff";
+   [160,110,65].forEach(r=>{ctx.beginPath();ctx.arc(tx,ty,r,0,Math.PI*2);ctx.stroke()});
+   ctx.fillStyle="#ef476f";ctx.beginPath();ctx.arc(tx,ty,40,0,7);ctx.fill();
+   ctx.fillStyle="#ffd166";ctx.beginPath();ctx.arc(tx,ty,18,0,7);ctx.fill();
+   ctx.fillStyle="#fff";ctx.font="22px Arial";ctx.fillText("Disparos restantes: "+(12-shots),25,35);
+ }
+ draw();
+ function loop(){
+   if(myGen!==gameGen) return;
+   tick++;
+   tx=450+Math.sin(tick*0.045)*200;
+   ty=250+Math.sin(tick*0.071)*80;
+   draw();
+   raf=requestAnimationFrame(loop);
+ }
+ raf=requestAnimationFrame(loop);
  on(canvas,"pointerdown",e=>{
    if(shots>=12)return;shots++;
-   const p=pos(e),d=Math.hypot(p.x-450,p.y-250);
-   const base=d<25?100:d<65?75:d<105?50:d<155?25:0;
+   const p=pos(e),d=Math.hypot(p.x-tx,p.y-ty);
+   const base=d<20?100:d<50?75:d<90?50:d<130?25:0;
    if(base>0){streak++} else {streak=0}
    const bonus = streak>=3? 20 : 0;
    const pts=base+bonus;
    setScore(score+pts);
    say(pts? "🎯 ¡Impacto! +"+pts+(bonus?" (racha x"+streak+")":"") : "❄️ Fallaste");
-   draw();
-   if(shots===12) later(()=>endRound("tiro","🎯 ¡Ronda terminada!",score),400);
+   if(shots===12){ cancelAnimationFrame(raf); later(()=>endRound("tiro","🎯 ¡Ronda terminada!",score),400); }
  });
 }
 
@@ -369,40 +386,69 @@ function maze(){
  on(document,"keydown",key);
 }
 
-/* ======================= 4. BOLOS DE NIEVE ======================= */
+/* ======================= 4. BOLOS DE NIEVE (bolera real: arrastra y suelta) ======================= */
 function bowling(){
- instructions.textContent="Apunta con el mouse y haz clic para lanzar la bola hacia los pinos. Tienes 3 lanzamientos.";
- makeCanvas();const myGen=gameGen;let pins=[],throws=0,aim=null,rolling=false;
+ instructions.textContent="Presiona sobre el carril, arrastra para apuntar y suelta para lanzar. Mientras más arrastres, más fuerza. Funciona con dedo o mouse. Tienes 3 lanzamientos.";
+ makeCanvas();const myGen=gameGen;
+ let pins=[],throws=0,rolling=false,dragging=false,dragStart=null,dragCur=null;
  function reset(){pins=[];for(let row=0;row<4;row++)for(let i=0;i<=row;i++)pins.push({x:450+(i-row/2)*48,y:110+row*55,hit:false})}reset();
  let ball={x:450,y:450};
+ function lanePath(){
+   ctx.beginPath();ctx.moveTo(320,55);ctx.lineTo(580,55);ctx.lineTo(760,470);ctx.lineTo(140,470);ctx.closePath();
+ }
  function draw(){
-   bg();ctx.fillStyle="#8a5a35";ctx.fillRect(0,300,900,200);
+   bg();
+   ctx.fillStyle="#a97b45";lanePath();ctx.fill();
+   ctx.strokeStyle="#6b4b26";ctx.lineWidth=2;lanePath();ctx.stroke();
+   ctx.strokeStyle="#00000022";ctx.lineWidth=2;
+   for(let i=-3;i<=3;i++){ ctx.beginPath();ctx.moveTo(450+i*12,55);ctx.lineTo(450+i*93,470);ctx.stroke(); }
+   ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(150,458);ctx.lineTo(750,458);ctx.stroke();
    pins.forEach(p=>{if(!p.hit){ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(p.x,p.y,20,0,7);ctx.fill();ctx.fillStyle="#e63946";ctx.fillRect(p.x-16,p.y-3,32,6)}});
-   if(aim && !rolling && throws<3){
-     ctx.setLineDash([8,8]);ctx.strokeStyle="#ffd166aa";ctx.lineWidth=2;
-     ctx.beginPath();ctx.moveTo(450,450);ctx.lineTo(aim.x,aim.y);ctx.stroke();ctx.setLineDash([]);
+   if(dragging && dragCur){
+     const dx=dragCur.x-450, dy=dragCur.y-450, dist=Math.hypot(dx,dy);
+     const power=Math.min(1,dist/260);
+     ctx.setLineDash([8,8]);
+     ctx.strokeStyle= power>0.7?"#ef476f":power>0.4?"#ffd166":"#06d6a0";
+     ctx.lineWidth=3;
+     ctx.beginPath();ctx.moveTo(450,450);ctx.lineTo(dragCur.x,dragCur.y);ctx.stroke();ctx.setLineDash([]);
+     ctx.fillStyle="#0e2338";ctx.fillRect(830,80,26,320);
+     ctx.strokeStyle="#315575";ctx.strokeRect(830,80,26,320);
+     ctx.fillStyle="#ffd166";ctx.fillRect(830,80+320*(1-power),26,320*power);
+     ctx.fillStyle="#fff";ctx.font="13px Arial";ctx.fillText("FUERZA",805,70);
    }
    ctx.fillStyle="#06d6a0";ctx.beginPath();ctx.arc(ball.x,ball.y,25,0,7);ctx.fill();
    ctx.fillStyle="#fff";ctx.font="22px Arial";ctx.fillText("Lanzamientos: "+throws+"/3",25,35);
  }
  draw();
- on(canvas,"pointermove",e=>{ if(!rolling){ aim=pos(e); draw(); } });
  on(canvas,"pointerdown",e=>{
-   if(throws>=3||rolling)return;throws++;rolling=true;
-   const p=pos(e),dx=p.x-450,dy=p.y-450,len=Math.hypot(dx,dy)||1;
-   const endX=450+dx/len*600, endY=450+dy/len*600;
+   if(throws>=3||rolling)return;
+   dragging=true; dragStart=pos(e); dragCur=dragStart; draw();
+ });
+ on(canvas,"pointermove",e=>{ if(dragging){ dragCur=pos(e); draw(); } });
+ function release(e){
+   if(!dragging) return;
+   dragging=false;
+   const end = e? pos(e) : dragCur;
+   const dx=end.x-450, dy=end.y-450, dist=Math.hypot(dx,dy);
+   if(dist<15){ draw(); return; }
+   throws++; rolling=true;
+   const power=Math.min(1,dist/260);
+   const reach=280+power*520;
+   const ux=dx/dist, uy=dy/dist;
+   const rdx=ux*reach, rdy=uy*reach;
+   const endX=450+rdx, endY=450+rdy;
    let t=0;
    function frame(){
      if(myGen!==gameGen) return;
-     t++;const q=t/22;
+     t++;const q=t/24;
      ball.x=450+(endX-450)*q; ball.y=450+(endY-450)*q;
      draw();
      if(q<1){ raf=requestAnimationFrame(frame); }
      else{
        let knocked=0;
        pins.forEach(pin=>{
-         const proj=((pin.x-450)*dx+(pin.y-450)*dy)/(len*len);
-         const qx=450+proj*dx,qy=450+proj*dy;
+         const proj=((pin.x-450)*rdx+(pin.y-450)*rdy)/(reach*reach);
+         const qx=450+proj*rdx,qy=450+proj*rdy;
          if(proj>0&&proj<1.3&&Math.hypot(pin.x-qx,pin.y-qy)<42&&!pin.hit){pin.hit=true;knocked++}
        });
        const allDown = pins.every(p=>p.hit);
@@ -414,50 +460,72 @@ function bowling(){
      }
    }
    raf=requestAnimationFrame(frame);
- });
+ }
+ on(canvas,"pointerup",release);
+ on(canvas,"pointercancel",release);
 }
 
-/* ======================= 5. REGALO RELÁMPAGO ======================= */
+/* ======================= 5. REGALO RELÁMPAGO (parejas de memoria) ======================= */
 function gifts(){
- instructions.textContent="Encuentra el regalo ⭐ antes de que se acabe el tiempo. 5 rondas.";
- makeCanvas();const myGen=gameGen;let target=-1,round=0,locked=false,timeLeft=0,timerId=0;
- function newRound(){
-   target=Math.floor(Math.random()*9);locked=false;timeLeft=3.0;
-   draw();
-   clearInterval(timerId);
-   timerId=setInterval(()=>{
-     if(myGen!==gameGen){ clearInterval(timerId); return; }
-     timeLeft-=0.1;
-     if(timeLeft<=0){
-       clearInterval(timerId);
-       if(!locked){ locked=true; setScore(score-20); say("⏰ ¡Se acabó el tiempo! -20"); round++; finishOrNext(); }
-     } else draw();
-   },100);
- }
- function finishOrNext(){
-   if(round<5) later(newRound,600);
-   else later(()=>{clearInterval(timerId);endRound("gifts","🎁 ¡Rondas completadas!",score);},500);
- }
+ instructions.textContent="Destapa dos regalos por turno y encuentra las 6 parejas iguales. Memoriza bien dónde está cada uno.";
+ makeCanvas();
+ const myGen=gameGen;
+ const icons=["🎄","🔔","⭐","🧦","🍬","☃️"];
+ let deck=icons.concat(icons);
+ for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+ const cols=4, gw=195, gh=140, ox=50, oy=45, pad=14;
+ let cards=deck.map((icon,i)=>({icon,matched:false,revealed:false,x:ox+(i%cols)*gw,y:oy+Math.floor(i/cols)*gh}));
+ let flipped=[],attempts=0,matches=0,locked=false;
  function draw(){
    bg();
-   for(let i=0;i<9;i++){
-     const x=160+(i%3)*220,y=70+Math.floor(i/3)*135;
-     ctx.fillStyle="#ef476f";ctx.fillRect(x,y,130,90);
-     ctx.fillStyle="#ffd166";ctx.fillRect(x+59,y,12,90);ctx.fillRect(x,y+39,130,12);
-     ctx.font="34px Arial";ctx.fillStyle="#fff";ctx.fillText("🎁",x+46,y+61);
-   }
-   ctx.fillStyle="#fff";ctx.font="18px Arial";ctx.fillText("Ronda "+(round+1)+"/5",20,30);
-   ctx.fillStyle="#ffd166";ctx.fillRect(20,455,860*Math.max(0,timeLeft/3),14);
-   ctx.strokeStyle="#fff";ctx.strokeRect(20,455,860,14);
+   cards.forEach(c=>{
+     const w=gw-pad,h=gh-pad;
+     if(c.matched||c.revealed){
+       ctx.fillStyle=c.matched?"#0d3d2c":"#14304d";
+       ctx.fillRect(c.x,c.y,w,h);
+       ctx.strokeStyle=c.matched?"#06d6a0":"#ffd166";ctx.lineWidth=3;ctx.strokeRect(c.x,c.y,w,h);
+       ctx.font="52px Arial";ctx.fillStyle="#fff";ctx.textAlign="center";ctx.textBaseline="middle";
+       ctx.fillText(c.icon,c.x+w/2,c.y+h/2+4);
+     } else {
+       ctx.fillStyle="#ef476f";ctx.fillRect(c.x,c.y,w,h);
+       ctx.fillStyle="#ffd166";ctx.fillRect(c.x+w/2-6,c.y,12,h);ctx.fillRect(c.x,c.y+h/2-6,w,12);
+       ctx.font="38px Arial";ctx.fillStyle="#fffb";ctx.textAlign="center";ctx.textBaseline="middle";
+       ctx.fillText("🎁",c.x+w/2,c.y+h/2+2);
+     }
+     ctx.textAlign="left";ctx.textBaseline="alphabetic";
+   });
+   ctx.fillStyle="#fff";ctx.font="18px Arial";ctx.fillText("Parejas: "+matches+"/6 · Intentos: "+attempts,20,25);
  }
- draw();on(canvas,"pointerdown",e=>{
-   if(locked||round>=5)return;
-   const p=pos(e),col=Math.floor((p.x-160)/220),row=Math.floor((p.y-70)/135),i=row*3+col;
-   if(i<0||i>8||col<0||col>2||row<0||row>2)return;
-   locked=true;clearInterval(timerId);
-   if(i===target){setScore(score+100);round++;say("🎁 ¡Regalo correcto! +100 · Ronda "+round+"/5");}
-   else{setScore(score-20);say("💨 Ese no era · -20");round++;}
-   finishOrNext();
+ draw();
+ on(canvas,"pointerdown",e=>{
+   if(locked)return;
+   const p=pos(e), w=gw-pad, h=gh-pad;
+   const idx=cards.findIndex(c=>!c.matched&&!c.revealed&&p.x>=c.x&&p.x<=c.x+w&&p.y>=c.y&&p.y<=c.y+h);
+   if(idx<0)return;
+   cards[idx].revealed=true;flipped.push(idx);draw();
+   if(flipped.length===2){
+     attempts++;locked=true;
+     const [a,b]=flipped;
+     if(cards[a].icon===cards[b].icon){
+       cards[a].matched=true;cards[b].matched=true;matches++;
+       setScore(score+100);
+       say("🎁 ¡Pareja encontrada! +100 · "+matches+"/6");
+       flipped=[];locked=false;draw();
+       if(matches===6){
+         const bonus=Math.max(0,300-attempts*15);
+         setScore(score+bonus);
+         say("🎁 ¡Todas las parejas encontradas! Bono +"+bonus);
+         later(()=>endRound("gifts","🎁 ¡Memoria perfecta!",score),700);
+       }
+     } else {
+       say("💨 No coinciden... memorízalos");
+       later(()=>{
+         if(myGen!==gameGen)return;
+         cards[a].revealed=false;cards[b].revealed=false;
+         flipped=[];locked=false;draw();
+       },800);
+     }
+   }
  });
 }
 
@@ -467,7 +535,8 @@ function runner(){
  makeCanvas();const myGen=gameGen;let y=400,vy=0,ob=[],ticks=0,alive=true,speed=7,goalReached=false;
  function draw(){
    bg();ctx.fillStyle="#dce8f0";ctx.fillRect(0,440,900,60);
-   ctx.font="40px Arial";ctx.fillText("🦌",90,y);
+   ctx.font="40px Arial";
+   ctx.save();ctx.translate(130,y);ctx.scale(-1,1);ctx.fillText("🦌",0,0);ctx.restore();
    ob.forEach(o=>ctx.fillText("🎁",o.x,435));
    ctx.fillStyle="#fff";ctx.font="20px Arial";ctx.fillText("Puntos: "+score+" / 300",20,35);
  }
@@ -497,35 +566,73 @@ function runner(){
  loop();
 }
 
-/* ======================= 7. LUCES DE NAVIDAD ======================= */
+/* ======================= 7. ENCIENDE EL ÁRBOL (reflejos) ======================= */
 function lights(){
- instructions.textContent="Mira la secuencia de luces y después repítela haciendo clic en los 4 círculos.";
- makeCanvas();const colors=["#ef476f","#06d6a0","#ffd166","#118ab2"];let seq=[],user=[],level=1,locked=true;
- function draw(active=-1){bg();for(let i=0;i<4;i++){ctx.fillStyle=colors[i];ctx.globalAlpha=i===active?1:.45;ctx.beginPath();ctx.arc(330+(i%2)*240,170+Math.floor(i/2)*180,75,0,7);ctx.fill()}ctx.globalAlpha=1}
- function show(){
-   seq.push(Math.floor(Math.random()*4));user=[];locked=true;let i=0;
-   function f(){ if(i<seq.length){draw(seq[i]);i++;later(f,550)} else {draw();locked=false;say("💡 Tu turno · Nivel "+level)} }
-   f();
+ instructions.textContent="Haz clic en la luz que se encienda antes de que se apague. 15 rondas, cada vez más rápido.";
+ makeCanvas();
+ const myGen=gameGen;
+ const positions=[
+   {x:450,y:75},
+   {x:395,y:145},{x:505,y:145},
+   {x:345,y:215},{x:450,y:215},{x:555,y:215},
+   {x:295,y:285},{x:400,y:285},{x:500,y:285},{x:605,y:285},
+   {x:250,y:355},{x:355,y:355},{x:450,y:355},{x:545,y:355},{x:650,y:355}
+ ];
+ const totalRounds=15;
+ let round=0,lit=-1,combo=0,timerId=0,running=true;
+ function drawTree(){
+   ctx.fillStyle="#6b4423";ctx.fillRect(430,405,40,55);
+   ctx.fillStyle="#0d3d24";
+   [[450,40,140],[450,150,190],[450,255,240]].forEach(([cx,topY,w])=>{
+     ctx.beginPath();ctx.moveTo(cx,topY);ctx.lineTo(cx-w/2,topY+115);ctx.lineTo(cx+w/2,topY+115);ctx.closePath();ctx.fill();
+   });
+   ctx.fillStyle="#ffd166";ctx.beginPath();
+   for(let i=0;i<5;i++){ const a=-Math.PI/2+i*(Math.PI*2/5), r1=18,r2=8; ctx.lineTo(450+Math.cos(a)*r1,40+Math.sin(a)*r1); const a2=a+Math.PI/5; ctx.lineTo(450+Math.cos(a2)*r2,40+Math.sin(a2)*r2); }
+   ctx.closePath();ctx.fill();
  }
- draw();show();
- on(canvas,"pointerdown",e=>{
-   if(locked)return;
-   const p=pos(e),col=(p.x>450?1:0)+(p.y>250?2:0);
-   draw(col);user.push(col);
-   if(user[user.length-1]!==seq[user.length-1]){
-     locked=true;say("💥 Secuencia incorrecta · Llegaste al nivel "+level);
-     later(()=>endRound("lights","💡 ¡Fin del juego!",score),600);
+ function draw(){
+   bg();drawTree();
+   positions.forEach((p,i)=>{
+     ctx.beginPath();ctx.arc(p.x,p.y,16,0,7);
+     if(i===lit){ ctx.fillStyle="#ffd166";ctx.shadowColor="#ffd166";ctx.shadowBlur=28; }
+     else { ctx.fillStyle="#4a3a22";ctx.shadowBlur=0; }
+     ctx.fill();ctx.shadowBlur=0;
+     ctx.strokeStyle="#00000055";ctx.lineWidth=1;ctx.stroke();
+   });
+   ctx.fillStyle="#fff";ctx.font="18px Arial";
+   ctx.fillText("Ronda "+Math.min(round+1,totalRounds)+"/"+totalRounds+" · Combo x"+combo,20,30);
+ }
+ function nextRound(){
+   if(myGen!==gameGen)return;
+   if(round>=totalRounds){
+     running=false;lit=-1;draw();
+     later(()=>endRound("lights","💡 ¡Árbol encendido!",score),400);
      return;
    }
-   if(user.length===seq.length){
-     setScore(score+level*25);level++;locked=true;
-     if(level>8){
-       say("💡 ¡Increíble! Completaste 8 niveles · "+score+" puntos");
-       later(()=>endRound("lights","💡 ¡Memoria perfecta!",score),600);
-     } else {
-       say("✨ ¡Correcto! Preparando nivel "+level);
-       later(show,700);
-     }
+   lit=Math.floor(Math.random()*positions.length);
+   draw();
+   const speed=Math.max(420,950-round*38);
+   timerId=later(()=>{
+     if(myGen!==gameGen)return;
+     combo=0;
+     say("⌛ ¡Se apagó! Combo perdido.");
+     round++;lit=-1;draw();
+     later(nextRound,300);
+   },speed);
+ }
+ draw();
+ later(nextRound,500);
+ on(canvas,"pointerdown",e=>{
+   if(lit<0||!running)return;
+   const p=pos(e),target=positions[lit];
+   if(Math.hypot(target.x-p.x,target.y-p.y)<28){
+     timers=timers.filter(x=>x!==timerId);clearTimeout(timerId);
+     combo++;
+     const pts=40+combo*10;
+     setScore(score+pts);
+     say("✨ ¡Encendida! +"+pts+" · Combo x"+combo);
+     round++;lit=-1;draw();
+     later(nextRound,250);
    }
  });
 }
