@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PAR Servicios | 7 Juegos de Fin de Año</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;color:#fff}
+body{background:radial-gradient(circle at 50% 0,#214a73 0,#0b1c30 42%,#040b14 100%);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:38px 38px;z-index:0}
+header{text-align:center;padding:25px 15px 10px;position:relative;z-index:1}h1{margin:0;color:#ffd166;font-size:clamp(28px,5vw,50px);text-shadow:0 4px 18px #000}.sub{margin:8px 0 0;opacity:.85}
+.wrap{max-width:1200px;margin:auto;padding:18px;position:relative;z-index:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:#0e2338cc;border:1px solid #315575;border-radius:16px;padding:12px 18px;margin-bottom:18px}
+.who{font-size:15px}.who b{color:#ffd166}
+.progress{display:flex;gap:6px;align-items:center}.dot{width:14px;height:14px;border-radius:50%;background:#294967;border:1px solid #4a7092}.dot.done{background:#06d6a0;border-color:#06d6a0}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.stations{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{position:relative;min-height:185px;padding:20px;border:1px solid #315575;border-radius:20px;background:linear-gradient(145deg,#14304d,#0a1728);box-shadow:0 14px 35px #0006;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-5px);border-color:#ffd166}
+.icon{font-size:48px}.card b{display:block;font-size:21px;margin:8px 0}.card p{opacity:.82;margin:0 0 12px}.tag{font-size:11px;color:#ffd166;letter-spacing:1px}
+.badge{position:absolute;top:14px;right:14px;background:#06d6a0;color:#052;font-weight:bold;font-size:12px;border-radius:20px;padding:4px 10px;display:none}
+.card.played .badge{display:block}
+#game{display:none;border:1px solid #315575;border-radius:22px;background:#081523eF;padding:18px;box-shadow:0 20px 45px #0008;position:relative;z-index:1}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.top h2{margin:0;color:#ffd166}.score{font-size:21px;color:#ffd166}
+button{border:0;border-radius:11px;padding:11px 17px;font-weight:bold;cursor:pointer;background:#ffd166;color:#111;font-size:14px}button.secondary{background:#294967;color:#fff}button.ghost{background:transparent;color:#ffd166;border:1px solid #ffd166}button:hover{filter:brightness(1.08)}button:disabled{opacity:.5;cursor:not-allowed;filter:none}
+canvas{display:block;width:100%;max-width:900px;height:auto;margin:16px auto;border:1px solid #315575;border-radius:16px;touch-action:none;background:#07111f}
+#msg{text-align:center;min-height:28px;font-weight:bold;font-size:18px}.instructions{text-align:center;opacity:.78;margin:4px}
+#content{position:relative}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#040b14cc;border-radius:16px;z-index:5}
+.panel{background:linear-gradient(145deg,#14304d,#0a1728);border:1px solid #ffd166;border-radius:18px;padding:26px 30px;text-align:center;max-width:360px;box-shadow:0 20px 50px #000a}
+.panel h3{margin:0 0 6px;color:#ffd166;font-size:22px}.panel p{margin:6px 0}
+.stars{font-size:30px;letter-spacing:4px;margin:8px 0}
+.ovBtns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.gate,.modal{position:fixed;inset:0;background:#040b14e6;display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.gateBox{background:linear-gradient(145deg,#14304d,#0a1728);border:1px solid #ffd166;border-radius:20px;padding:34px;max-width:420px;width:100%;text-align:center;box-shadow:0 25px 60px #000a}
+.gateBox h2{color:#ffd166;margin-top:0}
+.gateBox input,.gateBox select{width:100%;padding:12px;border-radius:10px;border:1px solid #315575;background:#07111f;color:#fff;font-size:15px;margin:8px 0}
+.gateBox .err{color:#ff6b6b;font-size:13px;min-height:18px}
+.modalBox{background:linear-gradient(145deg,#14304d,#0a1728);border:1px solid #315575;border-radius:20px;padding:24px;max-width:480px;width:100%;max-height:80vh;overflow:auto}
+.modalBox h2{color:#ffd166;margin-top:0;display:flex;justify-content:space-between;align-items:center}
+.rankRow{display:flex;justify-content:space-between;padding:9px 6px;border-bottom:1px solid #22405f}
+.rankRow b{color:#ffd166}
+#confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:60}
+.footNote{text-align:center;opacity:.55;font-size:12px;margin:26px 0 8px}
+</style>
+</head>
+<body>
+<canvas id="confettiCanvas"></canvas>
+
+<div class="gate" id="gate">
+  <div class="gateBox">
+    <div style="font-size:42px">🎄🎅🎁</div>
+    <h2>¡Bienvenido a la fiesta!</h2>
+    <p style="opacity:.8">Ingresa tus datos para empezar a jugar y quedar en la tabla de resultados.</p>
+    <input id="gName" type="text" placeholder="Nombre completo" maxlength="60" autocomplete="off">
+    <input id="gArea" type="text" placeholder="Área / Sede (opcional)" maxlength="60" autocomplete="off">
+    <div class="err" id="gErr"></div>
+    <button id="gEnter" style="width:100%;margin-top:6px">🎉 Ingresar a la fiesta</button>
+  </div>
+</div>
+
+<div class="modal" id="rankModal" style="display:none">
+  <div class="modalBox">
+    <h2>🏆 Ranking <button class="secondary" id="rankClose">✕</button></h2>
+    <div id="rankBody">Cargando...</div>
+  </div>
+</div>
+
+<header>
+<h1>🎄 PAR SERVICIOS 🎅</h1>
+<div class="sub">7 estaciones de diversión · Especial Fin de Año</div>
+</header>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="who">Jugando: <b id="whoName">-</b> · Puntaje total: <b id="totalScore">0</b></div>
+  <div class="progress" id="progressDots"></div>
+  <div class="actions">
+    <button class="ghost" id="btnRank">🏆 Ranking</button>
+    <button id="btnSend">📤 Enviar resultados</button>
+  </div>
+</div>
+
+<div class="stations" id="stations">
+<div class="card" data-game="1" data-key="tiro"><div class="badge">0</div><div class="icon">🎯</div><b>Tiro al Blanco</b><p>12 disparos. Apunta al centro y suma puntos.</p><span class="tag">PRECISIÓN</span></div>
+<div class="card" data-game="2" data-key="basket"><div class="badge">0</div><div class="icon">🏀</div><b>Encesta la Navidad</b><p>Calcula la potencia y encesta la pelota.</p><span class="tag">HABILIDAD</span></div>
+<div class="card" data-game="3" data-key="maze"><div class="badge">0</div><div class="icon">🧩</div><b>Laberinto de Santa</b><p>Usa las flechas o WASD para llegar al regalo.</p><span class="tag">DESTREZA</span></div>
+<div class="card" data-game="4" data-key="bowling"><div class="badge">0</div><div class="icon">🎳</div><b>Bolos de Nieve</b><p>3 lanzamientos para derribar todos los pinos.</p><span class="tag">POTENCIA</span></div>
+<div class="card" data-game="5" data-key="gifts"><div class="badge">0</div><div class="icon">🎁</div><b>Regalo Relámpago</b><p>Encuentra el regalo correcto antes de que acabe el tiempo.</p><span class="tag">ATENCIÓN</span></div>
+<div class="card" data-game="6" data-key="runner"><div class="badge">0</div><div class="icon">🦌</div><b>Reno Saltarín</b><p>Salta y evita los regalos que aparecen.</p><span class="tag">REFLEJOS</span></div>
+<div class="card" data-game="7" data-key="lights"><div class="badge">0</div><div class="icon">💡</div><b>Luces de Navidad</b><p>Memoriza y repite la secuencia de luces.</p><span class="tag">MEMORIA</span></div>
+</div>
+
+<section id="game">
+<div class="top"><h2 id="gameTitle"></h2><div class="score">Puntos: <span id="score">0</span></div><button id="back" class="secondary">← Estaciones</button></div>
+<div id="msg"></div>
+<div id="instructions" class="instructions"></div>
+<div id="content"></div>
+</section>
+<div class="footNote">PAR Servicios © Fin de Año · Los resultados se guardan al enviarlos</div>
+</div>
+
+<script>
+"use strict";
+
+/* ======================= CONFIGURACIÓN ======================= */
+// Pega aquí la URL de tu Web App de Apps Script (Implementar > Nueva implementación > Aplicación web)
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYA5PoG0L_tC-Fe6oP2Opa8civ5MCMUeB73jMTaUKYNUQI8b-qIVrKEDfrVpXJcEwQdg/exec";
+
+const GAMES = [
+  {n:1,key:"tiro",title:"🎯 Tiro al Blanco",max:1200},
+  {n:2,key:"basket",title:"🏀 Encesta la Navidad",max:800},
+  {n:3,key:"maze",title:"🧩 Laberinto de Santa",max:900},
+  {n:4,key:"bowling",title:"🎳 Bolos de Nieve",max:1550},
+  {n:5,key:"gifts",title:"🎁 Regalo Relámpago",max:500},
+  {n:6,key:"runner",title:"🦌 Reno Saltarín",max:400},
+  {n:7,key:"lights",title:"💡 Luces de Navidad",max:900}
+];
+
+/* ======================= ESTADO GLOBAL ======================= */
+const $=id=>document.getElementById(id);
+const stations=$("stations"), gameBox=$("game"), gameTitle=$("gameTitle"), scoreEl=$("score"), msg=$("msg"), instructions=$("instructions"), content=$("content");
+let canvas=null,ctx=null,current=0,score=0,raf=0,timers=[],handlers=[],gameGen=0;
+
+let player = JSON.parse(localStorage.getItem("psPlayer")||"null");
+let results = JSON.parse(localStorage.getItem("psResults")||"{}");
+GAMES.forEach(g=>{ if(!(g.key in results)) results[g.key]=0; });
+
+function saveState(){
+  localStorage.setItem("psPlayer", JSON.stringify(player));
+  localStorage.setItem("psResults", JSON.stringify(results));
+}
+
+/* ======================= PUERTA DE ENTRADA ======================= */
+function openGate(){
+  $("gate").style.display="flex";
+  if(player){ $("gName").value=player.name||""; $("gArea").value=player.area||""; }
+}
+function closeGate(){ $("gate").style.display="none"; }
+
+$("gEnter").addEventListener("click",()=>{
+  const name=$("gName").value.trim(), area=$("gArea").value.trim();
+  if(name.length<2){ $("gErr").textContent="Por favor escribe tu nombre completo."; return; }
+  player={name,area};
+  saveState();
+  closeGate();
+  refreshHeader();
+});
+
+if(player && player.name){ closeGate(); } else { openGate(); }
+
+/* ======================= HEADER / PROGRESO ======================= */
+function totalScore(){ return GAMES.reduce((s,g)=>s+(results[g.key]||0),0); }
+function refreshHeader(){
+  $("whoName").textContent = player? player.name : "-";
+  $("totalScore").textContent = totalScore();
+  const dots=$("progressDots"); dots.innerHTML="";
+  GAMES.forEach(g=>{
+    const d=document.createElement("span");
+    d.className="dot"+(results[g.key]>0?" done":"");
+    d.title=g.title;
+    dots.appendChild(d);
+  });
+  document.querySelectorAll(".card").forEach(c=>{
+    const key=c.dataset.key, val=results[key]||0;
+    c.classList.toggle("played", val>0);
+    c.querySelector(".badge").textContent=val;
+  });
+}
+refreshHeader();
+
+/* ======================= UTILIDADES DE JUEGO ======================= */
+function clearGame(){
+  gameGen++;
+  cancelAnimationFrame(raf); raf=0;
+  timers.forEach(x=>clearTimeout(x)); timers=[];
+  handlers.forEach(([el,type,fn])=>el.removeEventListener(type,fn)); handlers=[];
+  content.innerHTML=""; canvas=null;ctx=null;
+}
+function on(el,type,fn){el.addEventListener(type,fn);handlers.push([el,type,fn])}
+function later(fn,ms){const id=setTimeout(()=>{timers=timers.filter(x=>x!==id);fn()},ms);timers.push(id);return id}
+function setScore(v){score=Math.max(0,Math.floor(v));scoreEl.textContent=score}
+function say(t){msg.textContent=t}
+function makeCanvas(w=900,h=500){
+  canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;canvas.setAttribute("aria-label","Área de juego");content.appendChild(canvas);ctx=canvas.getContext("2d");return canvas;
+}
+function pos(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+function bg(){
+  const g=ctx.createLinearGradient(0,0,0,canvas.height);g.addColorStop(0,"#12365a");g.addColorStop(1,"#06101b");ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#fff";for(let i=0;i<90;i++){const x=(i*97)%canvas.width,y=(i*53)%canvas.height;ctx.globalAlpha=.25+((i%5)/10);ctx.beginPath();ctx.arc(x,y,(i%3)+1,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
+}
+
+/* Fin de ronda unificado: guarda mejor puntaje, muestra estrellas y botones */
+function endRound(key,title,finalScore){
+  results[key]=Math.max(results[key]||0, Math.floor(finalScore));
+  saveState(); refreshHeader();
+  const g=GAMES.find(x=>x.key===key);
+  const ratio = g? Math.min(1, finalScore/g.max) : 0;
+  const stars = ratio>=0.66?3:ratio>=0.38?2:finalScore>0?1:0;
+  if(stars>=2) confettiBurst();
+  content.style.position="relative";
+  const div=document.createElement("div");
+  div.className="overlay";
+  div.innerHTML=`<div class="panel">
+    <h3>${title}</h3>
+    <p>Puntaje de esta ronda: <b>${Math.floor(finalScore)}</b></p>
+    <p>Mejor puntaje guardado: <b>${results[key]}</b></p>
+    <div class="stars">${"⭐".repeat(stars)}${"☆".repeat(3-stars)}</div>
+    <div class="ovBtns">
+      <button id="ovRetry">🔁 Reintentar</button>
+      <button class="secondary" id="ovMenu">🏠 Estaciones</button>
+    </div>
+  </div>`;
+  content.appendChild(div);
+  on($("ovRetry"),"click",()=>start(current));
+  on($("ovMenu"),"click",()=>$("back").click());
+}
+
+function start(n){
+  clearGame();current=n;setScore(0);gameBox.style.display="block";stations.style.display="none";
+  window.scrollTo({top:0,behavior:"smooth"});
+  const g=GAMES[n-1];
+  gameTitle.textContent=g.title;say("");
+  [shoot,basket,maze,bowling,gifts,runner,lights][n-1]();
+}
+$("back").addEventListener("click",()=>{clearGame();gameBox.style.display="none";stations.style.display="grid";refreshHeader()});
+document.querySelectorAll(".card").forEach(c=>c.addEventListener("click",()=>start(Number(c.dataset.game))));
+
+/* ======================= 1. TIRO AL BLANCO ======================= */
+function shoot(){
+ instructions.textContent="Haz clic en el blanco. Tienes 12 disparos.";
+ makeCanvas();let shots=0,streak=0;
+ function draw(){bg();ctx.lineWidth=6;ctx.strokeStyle="#fff";[180,125,75].forEach(r=>{ctx.beginPath();ctx.arc(450,250,r,0,Math.PI*2);ctx.stroke()});ctx.fillStyle="#ef476f";ctx.beginPath();ctx.arc(450,250,45,0,7);ctx.fill();ctx.fillStyle="#ffd166";ctx.beginPath();ctx.arc(450,250,22,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.font="22px Arial";ctx.fillText("Disparos restantes: "+(12-shots),25,35)}draw();
+ on(canvas,"pointerdown",e=>{
+   if(shots>=12)return;shots++;
+   const p=pos(e),d=Math.hypot(p.x-450,p.y-250);
+   const base=d<25?100:d<65?75:d<105?50:d<155?25:0;
+   if(base>0){streak++} else {streak=0}
+   const bonus = streak>=3? 20 : 0;
+   const pts=base+bonus;
+   setScore(score+pts);
+   say(pts? "🎯 ¡Impacto! +"+pts+(bonus?" (racha x"+streak+")":"") : "❄️ Fallaste");
+   draw();
+   if(shots===12) later(()=>endRound("tiro","🎯 ¡Ronda terminada!",score),400);
+ });
+}
+
+/* ======================= 2. ENCESTA LA NAVIDAD (corregido) ======================= */
+function basket(){
+ instructions.textContent="Observa la barra de potencia y haz clic en el momento justo para encestar.";
+ makeCanvas();
+ const myGen=gameGen;
+ const shooterX=180, shooterY=430, hoopX=680, hoopY=150;
+ let attempts=0, power=0, dir=1, locked=false, ball={x:shooterX,y:shooterY}, t=0, launchPower=0;
+ function drawScene(){
+   bg();
+   ctx.fillStyle="#263e57";ctx.fillRect(0,455,900,45);
+   // tablero y aro
+   ctx.strokeStyle="#fff";ctx.lineWidth=7;ctx.strokeRect(hoopX-65,hoopY-45,130,75);
+   ctx.fillStyle="#e63946";ctx.fillRect(hoopX-60,hoopY+25,120,12);
+   ctx.fillStyle="#ff9f1c";ctx.beginPath();ctx.arc(ball.x,ball.y,22,0,7);ctx.fill();
+   // barra de potencia
+   ctx.fillStyle="#0e2338";ctx.fillRect(40,80,26,320);
+   ctx.strokeStyle="#315575";ctx.strokeRect(40,80,26,320);
+   const zoneTop=80+320*(1-0.62), zoneH=320*0.16;
+   ctx.fillStyle="#06d6a0aa";ctx.fillRect(40,zoneTop,26,zoneH);
+   const py=80+320*(1-power);
+   ctx.fillStyle="#ffd166";ctx.fillRect(36,py-4,34,8);
+   ctx.fillStyle="#fff";ctx.font="20px Arial";ctx.fillText("Intentos: "+attempts+"/8",90,35);
+   ctx.font="14px Arial";ctx.fillText("POTENCIA",30,70);
+ }
+ drawScene();
+ function tick(){
+   if(myGen!==gameGen) return;
+   if(!locked){ power+=dir*0.02; if(power>=1){power=1;dir=-1} if(power<=0){power=0;dir=1}; drawScene(); }
+   raf=requestAnimationFrame(tick);
+ }
+ raf=requestAnimationFrame(tick);
+ function shootBall(){
+   locked=true; launchPower=power; attempts++;
+   const targetX = shooterX + (hoopX-shooterX+220)*launchPower - 60;
+   let ft=0;
+   function frame(){
+     if(myGen!==gameGen) return;
+     ft++; const q=ft/40;
+     ball.x=shooterX+(targetX-shooterX)*q;
+     ball.y=shooterY+(hoopY-shooterY)*q-190*Math.sin(Math.PI*q);
+     drawScene();
+     if(q<1){ raf=requestAnimationFrame(frame); }
+     else{
+       const d=Math.abs(targetX-hoopX);
+       const pts = d<25?100:d<55?55:0;
+       setScore(score+pts);
+       say(pts===100?"🏀 ¡SWISH! +100":pts?"🏀 ¡Encestaste! +"+pts:"❄️ Rebotó, no entró");
+       ball={x:shooterX,y:shooterY};
+       later(()=>{
+         locked=false;
+         drawScene();
+         if(attempts>=8){ cancelAnimationFrame(raf); endRound("basket","🏀 ¡Fin de la ronda!",score); }
+       },500);
+     }
+   }
+   raf=requestAnimationFrame(frame);
+ }
+ on(canvas,"pointerdown",()=>{ if(locked||attempts>=8) return; shootBall(); });
+}
+
+/* ======================= 3. LABERINTO DE SANTA (2 niveles) ======================= */
+function maze(){
+ instructions.textContent="Mueve a Santa con ← ↑ → ↓ o W A S D. Llega al 🎁.";
+ makeCanvas(800,500);
+ const maps=[
+ ["################",
+  "#S....#........#",
+  "###.#.#.######.#",
+  "#...#.#......#.#",
+  "#.###.######.#.#",
+  "#.....#....#...#",
+  "#.#####.##.###.#",
+  "#........#.....#",
+  "#.###########.G#",
+  "################"],
+ ["################",
+  "#S....#....#...#",
+  "#.####.##.##.#.#",
+  "#......#..#..#.#",
+  "#.####.##.##.#.#",
+  "#....#....#..#.#",
+  "###.##.####.##.#",
+  "#...........#..#",
+  "#.#########.#.G#",
+  "################"]
+ ];
+ let level=0, px=1, py=1, moves=0;
+ const cell=50;
+ function loadLevel(){
+   const map=maps[level];
+   px=1;py=1;moves=0;
+   draw(map);
+ }
+ function draw(map){
+   bg();
+   for(let y=0;y<10;y++)for(let x=0;x<16;x++){if(map[y][x]==="#"){ctx.fillStyle="#dce8f0";ctx.fillRect(x*cell+2,y*cell+2,cell-4,cell-4)}}
+   ctx.font="34px Arial";ctx.fillText("🎅",px*cell+7,py*cell+38);ctx.fillText("🎁",14*cell+7,8*cell+38);
+   ctx.fillStyle="#fff";ctx.font="18px Arial";ctx.fillText("Nivel "+(level+1)+"/2 · Movimientos: "+moves,20,30);
+ }
+ function move(dx,dy){
+   const map=maps[level];
+   const nx=px+dx,ny=py+dy;
+   if(nx<0||ny<0||nx>=16||ny>=10||map[ny][nx]==="#")return;
+   px=nx;py=ny;moves++;setScore(score+5);draw(map);
+   if(px===14&&py===8){
+     const bonus=Math.max(0,250-moves*4);
+     setScore(score+bonus);
+     if(level===0){
+       say("🎅 ¡Nivel 1 completado! +"+bonus+" · Preparando nivel 2...");
+       level=1; later(loadLevel,900);
+     } else {
+       say("🎅 ¡Llegaste al regalo! +"+bonus+" · ¡Completaste el laberinto!");
+       later(()=>endRound("maze","🧩 ¡Laberinto completado!",score),700);
+     }
+   }
+ }
+ loadLevel();
+ const key=e=>{
+   if(current!==3)return;
+   const k=e.key.toLowerCase();
+   const m={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]}[k];
+   if(m){e.preventDefault();move(m[0],m[1])}
+ };
+ on(document,"keydown",key);
+}
+
+/* ======================= 4. BOLOS DE NIEVE ======================= */
+function bowling(){
+ instructions.textContent="Apunta con el mouse y haz clic para lanzar la bola hacia los pinos. Tienes 3 lanzamientos.";
+ makeCanvas();const myGen=gameGen;let pins=[],throws=0,aim=null,rolling=false;
+ function reset(){pins=[];for(let row=0;row<4;row++)for(let i=0;i<=row;i++)pins.push({x:450+(i-row/2)*48,y:110+row*55,hit:false})}reset();
+ let ball={x:450,y:450};
+ function draw(){
+   bg();ctx.fillStyle="#8a5a35";ctx.fillRect(0,300,900,200);
+   pins.forEach(p=>{if(!p.hit){ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(p.x,p.y,20,0,7);ctx.fill();ctx.fillStyle="#e63946";ctx.fillRect(p.x-16,p.y-3,32,6)}});
+   if(aim && !rolling && throws<3){
+     ctx.setLineDash([8,8]);ctx.strokeStyle="#ffd166aa";ctx.lineWidth=2;
+     ctx.beginPath();ctx.moveTo(450,450);ctx.lineTo(aim.x,aim.y);ctx.stroke();ctx.setLineDash([]);
+   }
+   ctx.fillStyle="#06d6a0";ctx.beginPath();ctx.arc(ball.x,ball.y,25,0,7);ctx.fill();
+   ctx.fillStyle="#fff";ctx.font="22px Arial";ctx.fillText("Lanzamientos: "+throws+"/3",25,35);
+ }
+ draw();
+ on(canvas,"pointermove",e=>{ if(!rolling){ aim=pos(e); draw(); } });
+ on(canvas,"pointerdown",e=>{
+   if(throws>=3||rolling)return;throws++;rolling=true;
+   const p=pos(e),dx=p.x-450,dy=p.y-450,len=Math.hypot(dx,dy)||1;
+   const endX=450+dx/len*600, endY=450+dy/len*600;
+   let t=0;
+   function frame(){
+     if(myGen!==gameGen) return;
+     t++;const q=t/22;
+     ball.x=450+(endX-450)*q; ball.y=450+(endY-450)*q;
+     draw();
+     if(q<1){ raf=requestAnimationFrame(frame); }
+     else{
+       let knocked=0;
+       pins.forEach(pin=>{
+         const proj=((pin.x-450)*dx+(pin.y-450)*dy)/(len*len);
+         const qx=450+proj*dx,qy=450+proj*dy;
+         if(proj>0&&proj<1.3&&Math.hypot(pin.x-qx,pin.y-qy)<42&&!pin.hit){pin.hit=true;knocked++}
+       });
+       const allDown = pins.every(p=>p.hit);
+       let pts=knocked*50; if(allDown && knocked>0) pts+=100;
+       setScore(score+pts);
+       say(allDown? "🎳 ¡CHUZA! +"+pts : knocked? "🎳 ¡"+knocked+" pino(s) derribado(s)! +"+pts : "❄️ No derribaste pinos");
+       ball={x:450,y:450};rolling=false;draw();
+       if(throws===3) later(()=>endRound("bowling","🎳 ¡Fin del juego!",score),500);
+     }
+   }
+   raf=requestAnimationFrame(frame);
+ });
+}
+
+/* ======================= 5. REGALO RELÁMPAGO ======================= */
+function gifts(){
+ instructions.textContent="Encuentra el regalo ⭐ antes de que se acabe el tiempo. 5 rondas.";
+ makeCanvas();const myGen=gameGen;let target=-1,round=0,locked=false,timeLeft=0,timerId=0;
+ function newRound(){
+   target=Math.floor(Math.random()*9);locked=false;timeLeft=3.0;
+   draw();
+   clearInterval(timerId);
+   timerId=setInterval(()=>{
+     if(myGen!==gameGen){ clearInterval(timerId); return; }
+     timeLeft-=0.1;
+     if(timeLeft<=0){
+       clearInterval(timerId);
+       if(!locked){ locked=true; setScore(score-20); say("⏰ ¡Se acabó el tiempo! -20"); round++; finishOrNext(); }
+     } else draw();
+   },100);
+ }
+ function finishOrNext(){
+   if(round<5) later(newRound,600);
+   else later(()=>{clearInterval(timerId);endRound("gifts","🎁 ¡Rondas completadas!",score);},500);
+ }
+ function draw(){
+   bg();
+   for(let i=0;i<9;i++){
+     const x=160+(i%3)*220,y=70+Math.floor(i/3)*135;
+     ctx.fillStyle="#ef476f";ctx.fillRect(x,y,130,90);
+     ctx.fillStyle="#ffd166";ctx.fillRect(x+59,y,12,90);ctx.fillRect(x,y+39,130,12);
+     ctx.font="34px Arial";ctx.fillStyle="#fff";ctx.fillText("🎁",x+46,y+61);
+   }
+   ctx.fillStyle="#fff";ctx.font="18px Arial";ctx.fillText("Ronda "+(round+1)+"/5",20,30);
+   ctx.fillStyle="#ffd166";ctx.fillRect(20,455,860*Math.max(0,timeLeft/3),14);
+   ctx.strokeStyle="#fff";ctx.strokeRect(20,455,860,14);
+ }
+ draw();on(canvas,"pointerdown",e=>{
+   if(locked||round>=5)return;
+   const p=pos(e),col=Math.floor((p.x-160)/220),row=Math.floor((p.y-70)/135),i=row*3+col;
+   if(i<0||i>8||col<0||col>2||row<0||row>2)return;
+   locked=true;clearInterval(timerId);
+   if(i===target){setScore(score+100);round++;say("🎁 ¡Regalo correcto! +100 · Ronda "+round+"/5");}
+   else{setScore(score-20);say("💨 Ese no era · -20");round++;}
+   finishOrNext();
+ });
+}
+
+/* ======================= 6. RENO SALTARÍN ======================= */
+function runner(){
+ instructions.textContent="Haz clic, toca o pulsa ESPACIO para saltar. Evita los regalos. Llega a 300 pts para ganar.";
+ makeCanvas();const myGen=gameGen;let y=400,vy=0,ob=[],ticks=0,alive=true,speed=7,goalReached=false;
+ function draw(){
+   bg();ctx.fillStyle="#dce8f0";ctx.fillRect(0,440,900,60);
+   ctx.font="40px Arial";ctx.fillText("🦌",90,y);
+   ob.forEach(o=>ctx.fillText("🎁",o.x,435));
+   ctx.fillStyle="#fff";ctx.font="20px Arial";ctx.fillText("Puntos: "+score+" / 300",20,35);
+ }
+ function jump(){if(alive&&y>=399)vy=-15}
+ on(canvas,"pointerdown",jump);on(document,"keydown",e=>{if(e.code==="Space"){e.preventDefault();jump()}});
+ function loop(){
+   if(!alive||myGen!==gameGen)return;
+   ticks++;
+   speed=7+Math.min(6,score/60);
+   if(ticks%Math.max(30,55-Math.floor(score/40))===0)ob.push({x:900,scored:false});
+   ob.forEach(o=>o.x-=speed);
+   vy+=.7;y+=vy;if(y>400)y=400;
+   ob.forEach(o=>{
+     if(!o.scored&&o.x<80){o.scored=true;setScore(score+10)}
+     if(o.x>65&&o.x<145&&y>355){alive=false;say("💥 ¡El reno chocó! Puntuación final: "+score);later(()=>endRound("runner","🦌 ¡Choque!",score),500);}
+   });
+   ob=ob.filter(o=>o.x>-60);
+   draw();
+   if(score>=300 && !goalReached){
+     goalReached=true;alive=false;
+     say("🏆 ¡Meta alcanzada! Puntuación final: "+score);
+     later(()=>endRound("runner","🦌 ¡Meta alcanzada!",score),500);
+     return;
+   }
+   if(alive)raf=requestAnimationFrame(loop);
+ }
+ loop();
+}
+
+/* ======================= 7. LUCES DE NAVIDAD ======================= */
+function lights(){
+ instructions.textContent="Mira la secuencia de luces y después repítela haciendo clic en los 4 círculos.";
+ makeCanvas();const colors=["#ef476f","#06d6a0","#ffd166","#118ab2"];let seq=[],user=[],level=1,locked=true;
+ function draw(active=-1){bg();for(let i=0;i<4;i++){ctx.fillStyle=colors[i];ctx.globalAlpha=i===active?1:.45;ctx.beginPath();ctx.arc(330+(i%2)*240,170+Math.floor(i/2)*180,75,0,7);ctx.fill()}ctx.globalAlpha=1}
+ function show(){
+   seq.push(Math.floor(Math.random()*4));user=[];locked=true;let i=0;
+   function f(){ if(i<seq.length){draw(seq[i]);i++;later(f,550)} else {draw();locked=false;say("💡 Tu turno · Nivel "+level)} }
+   f();
+ }
+ draw();show();
+ on(canvas,"pointerdown",e=>{
+   if(locked)return;
+   const p=pos(e),col=(p.x>450?1:0)+(p.y>250?2:0);
+   draw(col);user.push(col);
+   if(user[user.length-1]!==seq[user.length-1]){
+     locked=true;say("💥 Secuencia incorrecta · Llegaste al nivel "+level);
+     later(()=>endRound("lights","💡 ¡Fin del juego!",score),600);
+     return;
+   }
+   if(user.length===seq.length){
+     setScore(score+level*25);level++;locked=true;
+     if(level>8){
+       say("💡 ¡Increíble! Completaste 8 niveles · "+score+" puntos");
+       later(()=>endRound("lights","💡 ¡Memoria perfecta!",score),600);
+     } else {
+       say("✨ ¡Correcto! Preparando nivel "+level);
+       later(show,700);
+     }
+   }
+ });
+}
+
+/* ======================= CONFETI ======================= */
+const confettiCanvas=$("confettiCanvas");
+function confettiBurst(){
+  confettiCanvas.width=innerWidth;confettiCanvas.height=innerHeight;
+  const cctx=confettiCanvas.getContext("2d");
+  const cols=["#ffd166","#ef476f","#06d6a0","#118ab2","#fff"];
+  let parts=Array.from({length:110},()=>({
+    x:innerWidth/2+(Math.random()-0.5)*200, y:innerHeight*0.25,
+    vx:(Math.random()-0.5)*9, vy:Math.random()*-8-3,
+    g:0.28, size:5+Math.random()*5, color:cols[Math.floor(Math.random()*cols.length)],
+    rot:Math.random()*Math.PI, vr:(Math.random()-0.5)*0.3
+  }));
+  let frame=0;
+  function step(){
+    frame++;
+    cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    parts.forEach(p=>{
+      p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+      cctx.save();cctx.translate(p.x,p.y);cctx.rotate(p.rot);
+      cctx.fillStyle=p.color;cctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+      cctx.restore();
+    });
+    if(frame<90) requestAnimationFrame(step);
+    else cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  }
+  step();
+}
+
+/* ======================= ENVÍO DE RESULTADOS ======================= */
+$("btnSend").addEventListener("click",async ()=>{
+  if(!player){ openGate(); return; }
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("http")!==0){
+    alert("⚠️ Aún no se configuró la URL de Google Apps Script en el archivo index.html (constante APPS_SCRIPT_URL).");
+    return;
+  }
+  const btn=$("btnSend"); btn.disabled=true; const oldText=btn.textContent; btn.textContent="Enviando...";
+  const payload={
+    nombre: player.name, area: player.area||"",
+    tiro: results.tiro||0, basket: results.basket||0, maze: results.maze||0,
+    bowling: results.bowling||0, gifts: results.gifts||0, runner: results.runner||0,
+    lights: results.lights||0, total: totalScore(),
+    timestamp: new Date().toISOString()
+  };
+  try{
+    await fetch(APPS_SCRIPT_URL,{
+      method:"POST",
+      mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    });
+    say0("✅ ¡Resultados enviados! Gracias por participar, "+player.name+".");
+  }catch(err){
+    say0("❌ No se pudo enviar. Revisa tu conexión e intenta de nuevo.");
+  }
+  btn.disabled=false; btn.textContent=oldText;
+});
+function say0(t){ alert(t); }
+
+/* ======================= RANKING ======================= */
+$("btnRank").addEventListener("click", async ()=>{
+  $("rankModal").style.display="flex";
+  $("rankBody").textContent="Cargando...";
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("http")!==0){
+    $("rankBody").textContent="⚠️ Configura APPS_SCRIPT_URL en index.html para ver el ranking en vivo.";
+    return;
+  }
+  try{
+    const res=await fetch(APPS_SCRIPT_URL+"?action=ranking");
+    const data=await res.json();
+    if(!data.ok || !data.rows || !data.rows.length){ $("rankBody").textContent="Aún no hay resultados registrados."; return; }
+    $("rankBody").innerHTML = data.rows.map((r,i)=>`<div class="rankRow"><span>${i+1}. ${r.nombre}</span><b>${r.total}</b></div>`).join("");
+  }catch(err){
+    $("rankBody").textContent="No se pudo cargar el ranking en este momento.";
+  }
+});
+$("rankClose").addEventListener("click",()=>{ $("rankModal").style.display="none"; });
+</script>
+</body>
+</html>
