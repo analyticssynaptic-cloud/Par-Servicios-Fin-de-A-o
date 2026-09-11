@@ -4,46 +4,82 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PAR Servicios | 7 Juegos de Fin de Año</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;color:#fff}
-body{background:radial-gradient(circle at 50% 0,#214a73 0,#0b1c30 42%,#040b14 100%);overflow-x:hidden}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:'Poppins',Arial,sans-serif;color:#fff}
+h1,h2,h3,.card b,.top h2,button,.who b,.score,.panel h3,.gateBox h2,.modalBox h2,.rankRow b,#totalScore{font-family:'Fredoka',Arial,sans-serif}
+body{background:radial-gradient(circle at 50% 0,#24548a 0,#0b1c30 42%,#040b14 100%);overflow-x:hidden}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:38px 38px;z-index:0}
-header{text-align:center;padding:25px 15px 10px;position:relative;z-index:1}h1{margin:0;color:#ffd166;font-size:clamp(28px,5vw,50px);text-shadow:0 4px 18px #000}.sub{margin:8px 0 0;opacity:.85}
+.snow{position:fixed;inset:0;pointer-events:none;z-index:35;overflow:hidden}
+.flake{position:absolute;top:-8vh;color:#fff;user-select:none;will-change:transform;animation-name:fall;animation-timing-function:linear;animation-iteration-count:infinite;text-shadow:0 0 6px #fff8}
+@keyframes fall{from{transform:translateY(-8vh) translateX(0) rotate(0deg)}to{transform:translateY(108vh) translateX(var(--drift,40px)) rotate(360deg)}}
+header{text-align:center;padding:30px 15px 12px;position:relative;z-index:1}
+h1{margin:0;color:#ffd166;font-weight:700;font-size:clamp(28px,5vw,52px);text-shadow:0 4px 22px #000,0 0 40px #ffd16644;letter-spacing:.5px}
+.sub{margin:10px 0 0;opacity:.85;font-size:15px;letter-spacing:.3px}
 .wrap{max-width:1200px;margin:auto;padding:18px;position:relative;z-index:1}
-.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:#0e2338cc;border:1px solid #315575;border-radius:16px;padding:12px 18px;margin-bottom:18px}
-.who{font-size:15px}.who b{color:#ffd166}
-.progress{display:flex;gap:6px;align-items:center}.dot{width:14px;height:14px;border-radius:50%;background:#294967;border:1px solid #4a7092}.dot.done{background:#06d6a0;border-color:#06d6a0}
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;background:linear-gradient(135deg,#123356e6,#0b1f38e6);border:1px solid #35608e;border-radius:18px;padding:16px 22px;margin-bottom:20px;box-shadow:0 10px 30px #0006}
+.who{font-size:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.who b{color:#ffd166;font-weight:600}
+.scoreChip{background:#ffd16618;border:1px solid #ffd16655;border-radius:30px;padding:6px 16px;font-size:15px;display:flex;align-items:center;gap:6px}
+.scoreChip b{color:#ffd166;font-size:17px}
+.progress{display:flex;gap:7px;align-items:center}
+.dot{width:13px;height:13px;border-radius:50%;background:#294967;border:1px solid #4a7092;transition:.2s}
+.dot.done{background:#06d6a0;border-color:#06d6a0;box-shadow:0 0 10px #06d6a0aa}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
-.stations{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.card{position:relative;min-height:185px;padding:20px;border:1px solid #315575;border-radius:20px;background:linear-gradient(145deg,#14304d,#0a1728);box-shadow:0 14px 35px #0006;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-5px);border-color:#ffd166}
-.icon{font-size:48px}.card b{display:block;font-size:21px;margin:8px 0}.card p{opacity:.82;margin:0 0 12px}.tag{font-size:11px;color:#ffd166;letter-spacing:1px}
-.badge{position:absolute;top:14px;right:14px;background:#06d6a0;color:#052;font-weight:bold;font-size:12px;border-radius:20px;padding:4px 10px;display:none}
+.stations{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{position:relative;min-height:210px;padding:24px 20px;border:1px solid #315575;border-radius:22px;background:linear-gradient(160deg,#15335433,#0a1728);box-shadow:0 14px 32px #0007;cursor:pointer;transition:transform .22s,box-shadow .22s,border-color .22s;display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden}
+.card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% -10%,#ffd16622,transparent 60%);opacity:0;transition:opacity .25s}
+.card:hover{transform:translateY(-6px);border-color:#ffd166;box-shadow:0 18px 40px #000a,0 0 0 1px #ffd16655}
+.card:hover:before{opacity:1}
+.icon{font-size:38px;width:74px;height:74px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#254c78,#0a1728);box-shadow:inset 0 0 0 1px #ffffff1f,0 8px 18px #0006;position:relative;z-index:1}
+.card b{display:block;font-size:19px;margin:2px 0 8px;font-weight:600;position:relative;z-index:1}
+.card p{opacity:.78;margin:0 0 14px;font-size:13.5px;line-height:1.4;position:relative;z-index:1}
+.tag{margin-top:auto;font-size:10.5px;color:#ffd166;letter-spacing:1.2px;border:1px solid #ffd16655;background:#ffd16614;border-radius:20px;padding:5px 12px;position:relative;z-index:1}
+.badge{position:absolute;top:14px;right:14px;background:#06d6a0;color:#052;font-weight:700;font-size:11.5px;border-radius:20px;padding:4px 10px;display:none;z-index:2;box-shadow:0 4px 10px #06d6a066}
 .card.played .badge{display:block}
-#game{display:none;border:1px solid #315575;border-radius:22px;background:#081523eF;padding:18px;box-shadow:0 20px 45px #0008;position:relative;z-index:1}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.top h2{margin:0;color:#ffd166}.score{font-size:21px;color:#ffd166}
-button{border:0;border-radius:11px;padding:11px 17px;font-weight:bold;cursor:pointer;background:#ffd166;color:#111;font-size:14px}button.secondary{background:#294967;color:#fff}button.ghost{background:transparent;color:#ffd166;border:1px solid #ffd166}button:hover{filter:brightness(1.08)}button:disabled{opacity:.5;cursor:not-allowed;filter:none}
-canvas{display:block;width:100%;max-width:900px;height:auto;margin:16px auto;border:1px solid #315575;border-radius:16px;touch-action:none;background:#07111f}
-#msg{text-align:center;min-height:28px;font-weight:bold;font-size:18px}.instructions{text-align:center;opacity:.78;margin:4px}
+#game{display:none;border:1px solid #315575;border-radius:24px;background:linear-gradient(160deg,#0d2038f0,#071120f0);padding:20px;box-shadow:0 22px 50px #0009;position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top h2{margin:0;color:#ffd166;font-weight:600}
+.score{font-size:20px;color:#ffd166;font-weight:600}
+button{border:0;border-radius:12px;padding:11px 18px;font-weight:600;cursor:pointer;background:linear-gradient(160deg,#ffe08a,#ffd166);color:#1a1200;font-size:14px;transition:transform .15s,filter .15s,box-shadow .15s;box-shadow:0 6px 16px #ffd16633}
+button.secondary{background:linear-gradient(160deg,#345c88,#243f60);color:#fff;box-shadow:0 6px 14px #0005}
+button.ghost{background:transparent;color:#ffd166;border:1px solid #ffd16688;box-shadow:none}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button:disabled{opacity:.5;cursor:not-allowed;filter:none;transform:none}
+canvas{display:block;width:100%;max-width:900px;height:auto;margin:16px auto;border:1px solid #315575;border-radius:18px;touch-action:none;background:#07111f;box-shadow:0 10px 30px #0007}
+#msg{text-align:center;min-height:28px;font-weight:600;font-size:18px}.instructions{text-align:center;opacity:.78;margin:4px;font-size:13.5px}
 #content{position:relative}
-.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#040b14cc;border-radius:16px;z-index:5}
-.panel{background:linear-gradient(145deg,#14304d,#0a1728);border:1px solid #ffd166;border-radius:18px;padding:26px 30px;text-align:center;max-width:360px;box-shadow:0 20px 50px #000a}
-.panel h3{margin:0 0 6px;color:#ffd166;font-size:22px}.panel p{margin:6px 0}
-.stars{font-size:30px;letter-spacing:4px;margin:8px 0}
-.ovBtns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.gate,.modal{position:fixed;inset:0;background:#040b14e6;display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
-.gateBox{background:linear-gradient(145deg,#14304d,#0a1728);border:1px solid #ffd166;border-radius:20px;padding:34px;max-width:420px;width:100%;text-align:center;box-shadow:0 25px 60px #000a}
-.gateBox h2{color:#ffd166;margin-top:0}
-.gateBox input,.gateBox select{width:100%;padding:12px;border-radius:10px;border:1px solid #315575;background:#07111f;color:#fff;font-size:15px;margin:8px 0}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#040b14d9;border-radius:18px;z-index:5;backdrop-filter:blur(2px)}
+.panel{background:linear-gradient(160deg,#173a5e,#0a1728);border:1px solid #ffd166;border-radius:20px;padding:28px 32px;text-align:center;max-width:370px;box-shadow:0 25px 60px #000c}
+.panel h3{margin:0 0 6px;color:#ffd166;font-size:23px;font-weight:600}.panel p{margin:6px 0}
+.stars{font-size:32px;letter-spacing:5px;margin:10px 0}
+.ovBtns{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.gate,.modal{position:fixed;inset:0;background:#040b14ee;display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.gateBox{background:linear-gradient(160deg,#173a5e,#0a1728);border:1px solid #ffd166;border-radius:22px;padding:36px;max-width:420px;width:100%;text-align:center;box-shadow:0 30px 70px #000c}
+.gateBox h2{color:#ffd166;margin-top:0;font-weight:600}
+.gateBox input,.gateBox select{width:100%;padding:13px;border-radius:12px;border:1px solid #315575;background:#07111fcc;color:#fff;font-size:15px;margin:8px 0;font-family:'Poppins',Arial,sans-serif}
+.gateBox input:focus{outline:none;border-color:#ffd166}
 .gateBox .err{color:#ff6b6b;font-size:13px;min-height:18px}
-.modalBox{background:linear-gradient(145deg,#14304d,#0a1728);border:1px solid #315575;border-radius:20px;padding:24px;max-width:480px;width:100%;max-height:80vh;overflow:auto}
-.modalBox h2{color:#ffd166;margin-top:0;display:flex;justify-content:space-between;align-items:center}
-.rankRow{display:flex;justify-content:space-between;padding:9px 6px;border-bottom:1px solid #22405f}
+.modalBox{background:linear-gradient(160deg,#173a5e,#0a1728);border:1px solid #315575;border-radius:22px;padding:26px;max-width:480px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 30px 70px #000c}
+.modalBox h2{color:#ffd166;margin-top:0;display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.rankRow{display:flex;justify-content:space-between;padding:10px 8px;border-bottom:1px solid #22405f;font-size:14px}
 .rankRow b{color:#ffd166}
 #confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:60;width:100vw;height:100vh;max-width:none;margin:0;border:none;border-radius:0;background:transparent}
 .footNote{text-align:center;opacity:.55;font-size:12px;margin:26px 0 8px}
+.toastHost{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:70;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#102a46f5;border:1px solid #35608e;border-left:4px solid #ffd166;color:#fff;padding:13px 20px;border-radius:12px;box-shadow:0 16px 34px #0009;font-size:13.5px;font-weight:500;max-width:92vw;opacity:0;transform:translateY(-16px);transition:opacity .28s,transform .28s}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{border-left-color:#06d6a0}
+.toast.error{border-left-color:#ef476f}
+@media (max-width:640px){.who{gap:8px}.topbar{padding:14px}}
 </style>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
+<div class="snow" id="snow"></div>
+<div class="toastHost" id="toastHost"></div>
 
 <div class="gate" id="gate">
   <div class="gateBox">
@@ -71,11 +107,13 @@ canvas{display:block;width:100%;max-width:900px;height:auto;margin:16px auto;bor
 <div class="wrap">
 
 <div class="topbar">
-  <div class="who">Jugando: <b id="whoName">-</b> · Puntaje total: <b id="totalScore">0</b></div>
+  <div class="who">🎅 Jugando: <b id="whoName">-</b>
+    <span class="scoreChip">🏅 <b id="totalScore">0</b> pts</span>
+  </div>
   <div class="progress" id="progressDots"></div>
   <div class="actions">
     <button class="ghost" id="btnRank">🏆 Ranking</button>
-    <button id="btnSend">📤 Enviar resultados</button>
+    <button id="btnSend">🔄 Sincronizar</button>
   </div>
 </div>
 
@@ -95,7 +133,7 @@ canvas{display:block;width:100%;max-width:900px;height:auto;margin:16px auto;bor
 <div id="instructions" class="instructions"></div>
 <div id="content"></div>
 </section>
-<div class="footNote">PAR Servicios © Fin de Año · Los resultados se guardan al enviarlos</div>
+<div class="footNote">PAR Servicios © Fin de Año · Tus resultados se sincronizan solos al terminar cada juego</div>
 </div>
 
 <script>
@@ -114,6 +152,43 @@ const GAMES = [
   {n:6,key:"runner",title:"🦌 Reno Saltarín",max:400},
   {n:7,key:"lights",title:"💡 Luces de Navidad",max:1800}
 ];
+
+/* ======================= NIEVE DECORATIVA ======================= */
+(function makeSnow(){
+  const host=document.getElementById("snow");
+  const n=16;
+  for(let i=0;i<n;i++){
+    const f=document.createElement("span");
+    f.className="flake";
+    f.textContent="❄";
+    const size=10+Math.random()*16;
+    const dur=9+Math.random()*10;
+    const delay=-Math.random()*dur;
+    const drift=(Math.random()*80-40)+"px";
+    f.style.left=(Math.random()*100)+"vw";
+    f.style.fontSize=size+"px";
+    f.style.opacity=(0.25+Math.random()*0.45).toFixed(2);
+    f.style.animationDuration=dur+"s";
+    f.style.animationDelay=delay+"s";
+    f.style.setProperty("--drift",drift);
+    host.appendChild(f);
+  }
+})();
+
+/* ======================= NOTIFICACIONES (TOAST) ======================= */
+function toast(text,type,ms){
+  type=type||"info"; ms=ms||3200;
+  const host=document.getElementById("toastHost");
+  const el=document.createElement("div");
+  el.className="toast"+(type?" "+type:"");
+  el.textContent=text;
+  host.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add("show"));
+  setTimeout(()=>{
+    el.classList.remove("show");
+    setTimeout(()=>el.remove(),320);
+  },ms);
+}
 
 /* ======================= ESTADO GLOBAL ======================= */
 const $=id=>document.getElementById(id);
@@ -192,6 +267,7 @@ function bg(){
 function endRound(key,title,finalScore){
   results[key]=Math.max(results[key]||0, Math.floor(finalScore));
   saveState(); refreshHeader();
+  syncResults({auto:true});
   const g=GAMES.find(x=>x.key===key);
   const ratio = g? Math.min(1, finalScore/g.max) : 0;
   const stars = ratio>=0.66?3:ratio>=0.38?2:finalScore>0?1:0;
@@ -665,14 +741,20 @@ function confettiBurst(){
   step();
 }
 
-/* ======================= ENVÍO DE RESULTADOS ======================= */
-$("btnSend").addEventListener("click",async ()=>{
-  if(!player){ openGate(); return; }
+/* ======================= ENVÍO DE RESULTADOS (automático + manual) ======================= */
+let warnedNoUrl=false, syncing=false;
+async function syncResults(opts){
+  opts=opts||{};
+  const auto=!!opts.auto;
+  if(!player){ if(!auto) openGate(); return; }
   if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("http")!==0){
-    alert("⚠️ Aún no se configuró la URL de Google Apps Script en el archivo index.html (constante APPS_SCRIPT_URL).");
+    if(!warnedNoUrl){ toast("⚠️ Falta configurar APPS_SCRIPT_URL para guardar en la nube.","error",4200); warnedNoUrl=true; }
     return;
   }
-  const btn=$("btnSend"); btn.disabled=true; const oldText=btn.textContent; btn.textContent="Enviando...";
+  if(syncing && auto) return;
+  syncing=true;
+  const btn=$("btnSend"); let oldText;
+  if(!auto){ btn.disabled=true; oldText=btn.textContent; btn.textContent="Enviando..."; }
   const payload={
     nombre: player.name, area: player.area||"",
     tiro: results.tiro||0, basket: results.basket||0, maze: results.maze||0,
@@ -687,13 +769,14 @@ $("btnSend").addEventListener("click",async ()=>{
       headers:{"Content-Type":"text/plain;charset=utf-8"},
       body: JSON.stringify(payload)
     });
-    say0("✅ ¡Resultados enviados! Gracias por participar, "+player.name+".");
+    toast(auto? "☁️ Progreso guardado automáticamente" : "✅ ¡Resultados enviados! Gracias, "+player.name+".", "success", auto?2400:3400);
   }catch(err){
-    say0("❌ No se pudo enviar. Revisa tu conexión e intenta de nuevo.");
+    toast(auto? "⚠️ No se pudo sincronizar (revisa tu conexión)." : "❌ No se pudo enviar. Revisa tu conexión.", "error");
   }
-  btn.disabled=false; btn.textContent=oldText;
-});
-function say0(t){ alert(t); }
+  if(!auto){ btn.disabled=false; btn.textContent=oldText; }
+  syncing=false;
+}
+$("btnSend").addEventListener("click",()=>syncResults({auto:false}));
 
 /* ======================= RANKING ======================= */
 $("btnRank").addEventListener("click", async ()=>{
